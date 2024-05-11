@@ -13,7 +13,7 @@ use microbit::hal::gpio::{
     Output,
 };
 
-use microbit::hal::prelude::OutputPin;
+use embedded_hal::digital::OutputPin;
 
 #[global_allocator]
 static HEAP: Heap = Heap::empty();
@@ -75,6 +75,17 @@ impl<MODE> Neopixel<MODE> {
 
         unsafe {
             sendNeopixelBuffer(pin_mask, &self.data[0], self.bytes_per_pixel as u16 * self.num_pixels);
+        }
+    }
+}
+
+impl Color {
+    pub fn new(red: u8, green: u8, blue: u8) -> Self {
+        Self {
+            red,
+            green,
+            blue,
+            white: 255,
         }
     }
 }

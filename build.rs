@@ -4,7 +4,8 @@ use std::path::Path;
 fn main() {
     // Assemble the assembly file
     let asm_file = "src/neopixelsend.s";
-    let obj_file = "target/arm-none-eabi/release/neopixelsend.o";
+    let obj_file = "target/arm-none-eabi/neopixelsend.o";
+    
     let output = Command::new("arm-none-eabi-as")
         .arg("-march=armv7-m")
         .arg("-mfloat-abi=hard")

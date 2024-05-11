@@ -30,7 +30,6 @@ optional = true
 v1 = ["microbit"]
 v2 = ["microbit-v2"]
 
-defaults = ["v1"]
 defmt-default = []
 defmt-trace = []
 defmt-debug = []
