@@ -6,7 +6,6 @@ use embedded_alloc::Heap;
 use defmt_rtt as _;
 use panic_halt as _;
 
-
 use alloc::vec::Vec;
 use microbit::hal::gpio::{
     Pin,
@@ -16,7 +15,7 @@ use microbit::hal::gpio::{
 use embedded_hal::digital::OutputPin;
 
 #[global_allocator]
-static HEAP: Heap = Heap::empty();
+pub static HEAP: Heap = Heap::empty();
 
 
 extern "C" {

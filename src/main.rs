@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 
-use microbit_neopixel::*;
+use microbit_neopixel as neopixel;
 
 use microbit::hal::gpio::Level;
 use cortex_m_rt::entry;
@@ -11,15 +11,15 @@ use panic_halt as _;
 fn main() -> ! {
     {
         use core::mem::MaybeUninit;
-        const HEAP_SIZE: usize = 1024;
+        const HEAP_SIZE: usize = 4 * 1024;
         static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
-        unsafe { HEAP.init(HEAP_MEM.as_ptr() as usize, HEAP_SIZE) }
+        unsafe { neopixel::HEAP.init(HEAP_MEM.as_ptr() as usize, HEAP_SIZE) }
     }
 
     if let Some(board) = microbit::Board::take() {
-        let np = Neopixel::new(board.edge.e00.into_push_pull_output(Level::Low), 241, 3);
+        let mut np = neopixel::Neopixel::new(board.edge.e00.into_push_pull_output(Level::Low).into(), 241, 3);
 
-        np.set_pixel(0, Color::new(255, 130, 0));
+        np.set_pixel(0, neopixel::Color::new(255, 0, 0));
         np.show();
 
         loop { }
