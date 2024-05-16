@@ -17,9 +17,11 @@ fn main() -> ! {
     }
 
     if let Some(board) = microbit::Board::take() {
-        let mut np = neopixel::Neopixel::new(board.edge.e00.into_push_pull_output(Level::Low).into(), 241, 3);
+        let mut np = neopixel::Neopixel::new(board.edge.e00.into_push_pull_output(Level::Low).into(), 241);
 
         np.set_pixel(0, neopixel::Color::new(255, 0, 0));
+        np.set_pixel(1, neopixel::Color::new(0, 255, 0));
+        np.set_pixel(2, neopixel::Color::new(0, 0, 255));
         np.show();
 
         loop { }

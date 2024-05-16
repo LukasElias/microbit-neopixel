@@ -2,21 +2,20 @@
 
 extern crate alloc;
 
+use alloc::vec::Vec;
 use embedded_alloc::Heap;
 use defmt_rtt as _;
 use panic_halt as _;
-
-use alloc::vec::Vec;
+use embedded_hal::digital::OutputPin;
 use microbit::hal::gpio::{
     Pin,
     Output,
 };
 
-use embedded_hal::digital::OutputPin;
-
 #[global_allocator]
 pub static HEAP: Heap = Heap::empty();
 
+static BYTES_PER_PIXEL: u8 = 3;
 
 extern "C" {
     fn sendNeopixelBuffer(pin: u32, data_address: &u8, num_bytes: u16);
@@ -26,26 +25,24 @@ pub struct Color {
     red: u8,
     green: u8,
     blue: u8,
-    white: u8,
 }
 
 pub struct Neopixel<MODE> {
     pin: Pin<Output<MODE>>,
     num_pixels: u16,
-    bytes_per_pixel: u8,
     data: Vec<u8>,
 }
 
 impl<MODE> Neopixel<MODE> {
-    pub fn new(pin: Pin<Output<MODE>>, num_pixels: u16, bytes_per_pixel: u8) -> Self {
+    pub fn new(pin: Pin<Output<MODE>>, num_pixels: u16) -> Self {
+
         Self {
             pin,
             num_pixels,
-            bytes_per_pixel,
             data: {
-                let mut data_buffer: Vec<u8> = Vec::new();
+                let mut data_buffer: Vec<u8> = vec![0; num_pixels];
 
-                for _ in 0..num_pixels * bytes_per_pixel as u16 {
+                for _ in 0..num_pixels * BYTES_PER_PIXEL as u16 {
                     data_buffer.push(0);
                 }
 
@@ -55,16 +52,12 @@ impl<MODE> Neopixel<MODE> {
     }
 
     pub fn set_pixel(&mut self, pixel_index: u16, color: Color) {
-        let byte_index = pixel_index as usize * self.bytes_per_pixel as usize;
+        let byte_index = pixel_index as usize * BYTES_PER_PIXEL as usize;
 
-        for bytes_per_pixel in 0..self.bytes_per_pixel {
-            match bytes_per_pixel {
-                0 => self.data[byte_index] = color.red,
-                1 => self.data[byte_index + 1] = color.green,
-                2 => self.data[byte_index + 2] = color.blue,
-                _ => self.data[byte_index + 3] = color.white,
-            }
-        }
+        // The reason green is first is because the neopixel strip is grb not rgb
+        self.data[byte_index] = color.green;
+        self.data[byte_index + 1] = color.red;
+        self.data[byte_index + 2] = color.blue;
     }
     
     pub fn show(&mut self) {
@@ -73,7 +66,7 @@ impl<MODE> Neopixel<MODE> {
         let _ = self.pin.set_low();
 
         unsafe {
-            sendNeopixelBuffer(pin_mask, &self.data[0], self.bytes_per_pixel as u16 * self.num_pixels);
+            sendNeopixelBuffer(pin_mask, &self.data[0], BYTES_PER_PIXEL as u16 * self.num_pixels);
         }
     }
 }
@@ -84,7 +77,6 @@ impl Color {
             red,
             green,
             blue,
-            white: 255,
         }
     }
 }
