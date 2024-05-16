@@ -38,4 +38,6 @@ fn main() {
     // Link the assembly object file
     println!("cargo:rustc-link-search=native={}", Path::new(&staticlib_file).parent().unwrap().display());
     println!("cargo:rustc-link-lib=static=neopixelsend");
+    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=neopixelsend.s");
 }
